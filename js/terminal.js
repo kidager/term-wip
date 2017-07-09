@@ -3,30 +3,56 @@ const KEY_DOWN = 40;
 const KEY_TAB = 9;
 
 class Shell {
-  constructor(cmd, commands) {
+  constructor(term, commands) {
     this.commands = commands;
-    this.setupListeners(cmd);
-    localStorage.directory = 'root';
+    this.setupListeners(term);
+    this.term = term;
 
-    cmd.querySelector('.input').focus();
+    localStorage.directory = 'root';
+    localStorage.history = JSON.stringify('');
+
+    term.querySelector('.input').focus();
   }
 
-  setupListeners(cmd) {
-    cmd.addEventListener('keypress', (evt) => {
-      const prompt = event.target;
-      if (event.keyCode !== 13) { return false; }
+  setupListeners(term) {
+    $('#terminal').mouseup(() => {
+      term.querySelector('.input').focus();
+    });
 
-      const input = prompt.textContent.split(' ');
-      if (input[0] === 'clear') {
-        this.clearConsole();
-      } else if (input[0] && input[0] in this.commands) {
-        this.runCommand(cmd, input[0], input[1]);
-        this.resetPrompt(cmd, prompt);
+    term.addEventListener('keypress', (evt) => {
+      if (evt.keyCode !== 13) {
+        return false;
       }
 
-      event.preventDefault();
+      const prompt = evt.target;
+      const input = prompt.textContent.split(' ');
+      const cmd = input[0];
+      const args = input[1];
+
+      if (cmd === 'clear') {
+        this.clearConsole();
+      } else if (cmd && cmd in this.commands) {
+        this.runCommand(cmd, args);
+        this.resetPrompt(term, prompt);
+      } else {
+        this.term.innerHTML += 'Error: command not recognized';
+        this.resetPrompt(term, prompt);
+      }
+
+      evt.preventDefault();
       return true;
     });
+  }
+
+  runCommand(cmd, args) {
+    const command = args ? `${cmd} ${args}` : cmd;
+    this.updateHistory(command);
+
+    const output = this.commands[cmd](args);
+    console.log(output);
+    if (output) {
+      this.term.innerHTML += output;
+    }
   }
 
   resetPrompt(term, prompt) {
@@ -36,21 +62,28 @@ class Shell {
       newPrompt.querySelector('.prompt').textContent = this.prompt;
     }
     term.appendChild(newPrompt);
-    newPrompt.querySelector('.input').innerHTML = ' ';
+    newPrompt.querySelector('.input').innerHTML = '';
     newPrompt.querySelector('.input').focus();
   }
 
-  runCommand(term, cmd, args) {
-    const output = this.commands[cmd](args);
-    if (output) { term.innerHTML += output; }
+  updateHistory(command) {
+    let history = localStorage.history;
+    history = history ? Object.keys(JSON.parse(history)) : [];
+
+    history.push(command);
+    localStorage.history = JSON.stringify(history);
   }
 
   clearConsole() {
     $('#terminal').html(
       `<p class="hidden">
-        <span class="prompt">root $</span>
-        <span contenteditable="true" class="input"> </span>
+        <span class="prompt">
+          <span class="root">root</span>
+          <span class="tick">❯</span>
+        </span>
+        <span contenteditable="true" class="input"></span>
       </p>`
     );
+    this.term.querySelector('.input').focus();
   }
 }
