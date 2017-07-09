@@ -1,19 +1,7 @@
-const struct = {
-  root: [
-    'about_me.txt',
-    'contact_me.txt',
-  ],
-  projects: [
-    'dotify.txt',
-    'slack-automation.txt',
-    'map.txt',
-    'nodemessage.txt',
-  ],
-  skills: [
-    'proficient.txt',
-    'familiar.txt',
-    'learning.txt',
-  ],
+const errors = {
+  invalidDirectory: 'Error: not a valid directory',
+  noWriteAccess: 'Error: you do not have write access to this directory',
+  fileNotFound: 'Error: file not found in current directory',
 };
 
 function getDirectory() {
@@ -34,15 +22,17 @@ commands.path = () => {
 };
 
 // create new directory in current directory
-commands.mkdir = () => 'Error: you do not have write access to this directory';
+commands.mkdir = () => errors.noWriteAccess;
+
+// create new directory in current directory
+commands.touch = () => errors.noWriteAccess;
 
 // remove file from current directory
-commands.rm = () => 'Error: you do not have write access to this directory';
+commands.rm = () => errors.noWriteAccess;
 
 // see command history
 commands.history = () => {
   let history = localStorage.history;
-  console.log(JSON.parse(history));
   history = history ? Object.values(JSON.parse(history)) : [];
   return `<p>${history.join('<br>')}</p>`;
 };
@@ -65,7 +55,7 @@ commands.help = () => {
 // move into specified directory
 commands.cd = (newDirectory) => {
   const currDir = getDirectory();
-  const dirs = Object.keys(struct);
+  const dirs = ['root', 'projects', 'skills'];
   const newDir = newDirectory ? newDirectory.trim() : '';
 
   if (dirs.includes(newDir) && currDir !== newDir) {
@@ -73,7 +63,7 @@ commands.cd = (newDirectory) => {
   } else if (newDir === '') {
     setDirectory('root');
   } else {
-    return 'Error: not a valid directory';
+    return errors.invalidDirectory;
   }
   return null;
 };
@@ -104,36 +94,37 @@ commands.ls = () => {
 
 // display contents of specified file
 commands.cat = (filename) => {
-  console.log(systemData);
+  const dir = getDirectory();
   switch (filename) {
     // general data
     case 'about_me.txt':
-      return systemData.about_me;
+      return dir === 'root' ? systemData.about_me : errors.fileNotFound;
     case 'contact_me.txt':
-      return systemData.contact_me;
+      return dir === 'root' ? systemData.contact_me : errors.fileNotFound;
     case 'resume.txt':
-      return systemData.resume;
+      return dir === 'root' ? systemData.resume : errors.fileNotFound;
     // skill data
     case 'proficient.txt':
-      return systemData.proficient;
+      return dir === 'skills' ? systemData.proficient : errors.fileNotFound;
     case 'familiar.txt':
-      return systemData.familiar;
+      return dir === 'skills' ? systemData.familiar : errors.fileNotFound;
     case 'learning.txt':
-      return systemData.learning;
+      return dir === 'skills' ? systemData.learning : errors.fileNotFound;
     // project data
     case 'nodemessage.txt':
-      return systemData.nodemessage;
+      return dir === 'projects' ? systemData.nodemessage : errors.fileNotFound;
     case 'map.txt':
-      return systemData.map;
+      return dir === 'projects' ? systemData.map : errors.fileNotFound;
     case 'slack-automation.txt':
-      return systemData.slack_automation;
+      return dir === 'projects' ? systemData.slack_automation : errors.fileNotFound;
     case 'dotify.txt':
-      return systemData.dotify;
+      return dir === 'projects' ? systemData.dotify : errors.fileNotFound;
     default:
-      return 'Error: invalid filename';
+      return errors.fileNotFound;
   }
 };
 
+// initialize cli
 $(() => {
   const cmd = document.getElementById('terminal');
   const shell = new Shell(cmd, commands);
