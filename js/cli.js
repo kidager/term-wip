@@ -6,7 +6,7 @@ const errors = {
 
 const struct = {
   root: ['about', 'resume', 'contact'],
-  projects: ['nodemessage', 'map', 'dotify', 'slack-automation'],
+  projects: ['nodemessage', 'map', 'dotify', 'slack_automation'],
   skills: ['proficient', 'familiar', 'learning'],
 };
 
