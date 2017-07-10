@@ -1,8 +1,4 @@
-const KEY_UP = 38;
-const KEY_DOWN = 40;
-const KEY_TAB = 9;
-
-class Shell {
+class shell {
   constructor(term, commands) {
     this.commands = commands;
     this.setupListeners(term);
@@ -11,12 +7,12 @@ class Shell {
     localStorage.directory = 'root';
     localStorage.history = JSON.stringify('');
 
-    term.querySelector('.input').focus();
+    $('.input').focus();
   }
 
   setupListeners(term) {
     $('#terminal').mouseup(() => {
-      term.querySelector('.input').focus();
+      $('.input').last().focus();
     });
 
     term.addEventListener('keypress', (evt) => {
@@ -25,7 +21,7 @@ class Shell {
       }
 
       const prompt = evt.target;
-      const input = prompt.textContent.split(' ');
+      const input = prompt.textContent.trim().split(' ');
       const cmd = input[0];
       const args = input[1];
 
@@ -49,10 +45,7 @@ class Shell {
     this.updateHistory(command);
 
     const output = this.commands[cmd](args);
-    console.log(output);
-    if (output) {
-      this.term.innerHTML += output;
-    }
+    if (output) { this.term.innerHTML += output; }
   }
 
   resetPrompt(term, prompt) {
