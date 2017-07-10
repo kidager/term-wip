@@ -61,7 +61,8 @@ class shell {
 
   updateHistory(command) {
     let history = localStorage.history;
-    history = history ? Object.keys(JSON.parse(history)) : [];
+    console.log(JSON.parse(history));
+    history = history ? Object.values(JSON.parse(history)) : [];
 
     history.push(command);
     localStorage.history = JSON.stringify(history);
