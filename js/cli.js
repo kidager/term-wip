@@ -56,6 +56,8 @@ commands.cd = (newDirectory) => {
   const dirs = ['root', 'projects', 'skills'];
   const newDir = newDirectory ? newDirectory.trim() : '';
 
+  console.log("HELLO)");
+
   if (dirs.includes(newDir) && currDir !== newDir) {
     setDirectory(newDir);
   } else if (newDir === '') {

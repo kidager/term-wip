@@ -30,6 +30,7 @@ class shell {
       } else if (cmd && cmd in this.commands) {
         this.runCommand(cmd, args);
         this.resetPrompt(term, prompt);
+        $('.root').last().html(localStorage.directory);
       } else {
         this.term.innerHTML += 'Error: command not recognized';
         this.resetPrompt(term, prompt);
@@ -61,7 +62,6 @@ class shell {
 
   updateHistory(command) {
     let history = localStorage.history;
-    console.log(JSON.parse(history));
     history = history ? Object.values(JSON.parse(history)) : [];
 
     history.push(command);
